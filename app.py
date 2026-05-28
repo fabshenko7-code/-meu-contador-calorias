@@ -1,8 +1,3 @@
-
-Fabiano oliveira
-23:17 (há 1 minuto)
-para mim
-
 import streamlit as st
 import google.generativeai as genai
 from PIL import Image
@@ -14,7 +9,7 @@ st.set_page_config(page_title="IA Diet Contador - Foto", page_icon="📸", layou
 st.title("📸 Detector de Calorias por Foto")
 st.write("Foco: **Emagrecimento e Déficit Calórico**")
 
-# Configuração da API do Gemini (Insira sua chave aqui ou na barra lateral)
+# Configuração da API do Gemini na barra lateral
 st.sidebar.header("⚙️ Configuração")
 api_key = st.sidebar.text_input("Insira sua Gemini API Key:", type="password")
 
@@ -29,12 +24,12 @@ if 'total_calorias_dia' not in st.session_state:
 if 'historico_refeicoes' not in st.session_state:
     st.session_state.historico_refeicoes = []
 
-# Meta padrão para emagrecimento (pode ser ajustada)
+# Meta padrão para emagrecimento
 META_EMAGRECIMENTO = 1600 
 
 # Interface de Upload / Câmera
 st.header("🍽️ Analisar Prato / Alimento")
-opcao_envio = st.radio("Como deseja enviar a foto?", ("Tirar Foto (Câmera)", "Carregar Imagem do Galeria"))
+opcao_envio = st.radio("Como deseja enviar a foto?", ("Tirar Foto (Câmera)", "Carregar Imagem da Galeria"))
 
 imagem = None
 if opcao_envio == "Tirar Foto (Câmera)":
@@ -58,10 +53,8 @@ if imagem is not None:
         else:
             with st.spinner("A IA está analisando seu prato..."):
                 try:
-                    # Inicializa o modelo de visão do Gemini
                     model = genai.GenerativeModel('gemini-1.5-flash')
                     
-                    # Prompt focado em emagrecimento e extração limpa de dados
                     prompt = """
                     Analise esta imagem de comida com foco estrito em uma dieta de emagrecimento.
                     1. Identifique todos os alimentos presentes.
@@ -75,16 +68,12 @@ if imagem is not None:
                     response = model.generate_content([prompt, imagem])
                     texto_resposta = response.text
                     
-                    # Exibir resultado da análise
                     st.subheader("📊 Análise da IA:")
                     st.write(texto_resposta)
                     
-                    # Buscar o valor das calorias usando Regex para somar no app
                     match = re.search(r"\[TOTAL_KCAL:\s*(\d+)\]", texto_resposta)
                     if match:
                         calorias_refeicao = int(match.group(1))
-                        
-                        # Adicionar ao painel do dia
                         st.session_state.total_calorias_dia += calorias_refeicao
                         st.session_state.historico_refeicoes.append(f"Refeição identificada por foto: +{calorias_refeicao} kcal")
                         st.success(f"✔️ {calorias_refeicao} kcal adicionadas ao seu dia!")
@@ -96,7 +85,7 @@ if imagem is not None:
 
 st.markdown("---")
 
-# 3. Painel de Controle de Emagrecimento do Dia
+# Painel de Controle de Emagrecimento do Dia
 st.header("📉 Seu Painel de Emagrecimento")
 
 col1, col2 = st.columns(2)
@@ -104,13 +93,11 @@ with col1:
     st.metric(label="🔥 Consumido Hoje", value=f"{st.session_state.total_calorias_dia:.0f} kcal")
 with col2:
     restante = META_EMAGRECIMENTO - st.session_state.total_calorias_dia
-    st.metric(label="🎯 Saldo Restante para Emagrecer", value=f"{restante:.0f} kcal", delta=f"{restante} kcal" if restante >= 0 else "Meta Excedida", delta_color="normal" if restante >= 0 else "inverse")
+    st.metric(label="🎯 Saldo Restante para Emagrecer", value=f"{restante:.0f} kcal")
 
-# Barra de progresso para controle visual rápido
 progresso = min(st.session_state.total_calorias_dia / META_EMAGRECIMENTO, 1.0)
 st.progress(progresso)
 
-# Histórico das refeições do dia
 if st.session_state.historico_refeicoes:
     st.subheader("📋 Registro de Hoje:")
     for item in st.session_state.historico_refeicoes:
