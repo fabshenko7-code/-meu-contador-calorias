@@ -14,9 +14,9 @@ st.sidebar.header("⚙️ Configuração")
 api_key = st.sidebar.text_input("Insira sua Gemini API Key:", type="password")
 
 if api_key:
-    genai.configure(AIzaSyB9ojnROaEkayJsPAem0zayt5X7iY8jwUI)
+    genai.configure()
 else:
-    st.warning(AIzaSyB9ojnROaEkayJsPAem0zayt5X7iY8jwUI)
+    st.warning()
 
 # Inicializar o histórico de calorias do dia
 if 'total_calorias_dia' not in st.session_state:
